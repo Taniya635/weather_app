@@ -1,7 +1,7 @@
 <h2>App Name: Weather_app</h2>
 
 <h3>Description:</h3>
-Weatherify is a modern and user-friendly weather application that empowers users to stay informed about current weather conditions and forecasts for any location in the world. Built with cutting-edge technologies like React, Chakra UI, and powered by the OpenWeatherAPI, Weatherify provides a responsive and intuitive interface for users to access accurate and up-to-date weather data.
+Weather_app is a modern and user-friendly weather application that empowers users to stay informed about current weather conditions and forecasts for any location in the world. Built with cutting-edge technologies like React, Chakra UI, and powered by the OpenWeatherAPI, Weather_app provides a responsive and intuitive interface for users to access accurate and up-to-date weather data.
 
 <h3>Tech Stacks:</h3>
 <ul>
