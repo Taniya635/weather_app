@@ -8,10 +8,11 @@ import {
   Button,
   Text,
   Spinner,
-  Center,
+  HStack,
+  VStack,
+  Icon,
 } from '@chakra-ui/react';
-import {TiWeatherPartlySunny} from 'react-icons/ti'
-import {BsCloudFogFill,BsCloudHaze2Fill} from 'react-icons/bs'
+import { TiWeatherPartlySunny } from 'react-icons/ti';
 
 const API_KEY = '7f3546e915511f0f7941d7d68d3119a6';
 
@@ -20,12 +21,17 @@ function App() {
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
-
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const getCurrentDate = () => {
       const now = new Date();
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      };
       return now.toLocaleDateString(undefined, options);
     };
 
@@ -33,70 +39,85 @@ function App() {
   }, []);
 
   const fetchWeather = async () => {
+    if (!city.trim()) {
+      setErrorMessage('Please enter a city name to continue.');
+      setWeather(null);
+      return;
+    }
+
     setLoading(true);
+    setErrorMessage('');
+
     try {
       const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
+        `https://api.openweathermap.org/data/2.5/weather?q=${city.trim()}&appid=${API_KEY}&units=metric`
       );
       setWeather(response.data);
     } catch (error) {
+      setWeather(null);
+      setErrorMessage('We could not find that city. Try another location.');
       console.error('Error fetching weather data:', error);
     }
+
     setLoading(false);
   };
-  let w=window.innerWidth
-  console.log(w);
 
   return (
     <Box className="App">
-      <Box textAlign="center" p={4}>
-        <Heading as="h1" mb={4} mt={'5rem'} color='rgb(227, 138, 74)'>
-          Get a weather update 
-          
-        </Heading>
-        <Box position="relative">
+      <Box className="overlay" />
+      <Box className="contentWrapper">
+        <VStack spacing={6} className="searchPanel">
+          <HStack spacing={2} justify="center" color="orange.200">
+            <Icon as={TiWeatherPartlySunny} boxSize={10} />
+            <Heading as="h1" size="xl" className="titleText">
+              Local Weather Snapshot
+            </Heading>
+          </HStack>
+
+          <Text color="whiteAlpha.900" fontSize="md" textAlign="center" maxW="560px">
+            Search any city to instantly view current temperature and conditions.
+          </Text>
+
+          <HStack spacing={3} w="100%" flexDirection={['column', 'row']}>
             <Input
               placeholder="Enter city name"
-              // value={city}
-              mb={2}
-              onChange={(e)=>setCity(e.target.value)}
-              w={['90%', '70%', '500px']}
-              fontSize={'20px'}
-              mt={'2rem'}
-              textAlign="center"
-              fontWeight={'500'}
-              border="2px solid rgb(227, 138, 74)"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') fetchWeather();
+              }}
+              className="cityInput"
             />
-                   
-                        
-          </Box>
+            <Button className="weatherButton" onClick={fetchWeather} isDisabled={loading}>
+              Get Weather
+            </Button>
+          </HStack>
 
+          {loading && <Spinner size="lg" color="orange.200" thickness="4px" />}
 
-        <Button bg="rgba(227, 138, 74, 0.8)" onClick={fetchWeather} ml={'2rem'} fontSize={'18px'} _hover={{bg:'orange.100'}} borderRadius={'2rem'}>
-          Get Weather
-        </Button>
-        {loading && <Spinner mt={4} />}
-        {weather && (
-          <Box  width={['90%', '500px']} h={'300px'} m={'auto'} bg="rgba(192, 192, 192, 0.9)" mt={'3rem'} borderRadius={'3rem'}
-          cursor={'pointer'}
-          transition='1s'
-          _hover={{bg:'orange.100'}}
-          >
-            <Text  fontSize='25px' fontWeight={600} pt={'4rem'}>
-              Weather in {weather.name}, {weather.sys.country}:
+          {errorMessage && (
+            <Text color="red.200" fontWeight="600" textAlign="center">
+              {errorMessage}
             </Text>
+          )}
 
-            <Text fontSize="3xl" fontWeight={500}>
-              {Math.round(weather.main.temp)}°C
-            </Text>
-
-            <Text pt={'1rem'} color='brown' fontSize={'20px'}>
-              <Box mt={'-1.5rem'} fontWeight={550}>{weather.weather[0].description}</Box>
-            </Text>
-
-            <Text mt={2} fontWeight={800}>{currentDate}</Text>
-          </Box>
-        )}
+          {weather && (
+            <Box className="weatherCard">
+              <Text fontSize="2xl" fontWeight={700} color="white">
+                {weather.name}, {weather.sys.country}
+              </Text>
+              <Text fontSize="6xl" fontWeight={800} color="orange.100" lineHeight="1.1">
+                {Math.round(weather.main.temp)}°C
+              </Text>
+              <Text fontSize="lg" color="whiteAlpha.900" textTransform="capitalize">
+                {weather.weather[0].description}
+              </Text>
+              <Text fontSize="sm" color="whiteAlpha.800" mt={2}>
+                {currentDate}
+              </Text>
+            </Box>
+          )}
+        </VStack>
       </Box>
     </Box>
   );
