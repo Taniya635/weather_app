@@ -70,7 +70,7 @@ function App() {
           <HStack spacing={2} justify="center" color="orange.200">
             <Icon as={TiWeatherPartlySunny} boxSize={10} />
             <Heading as="h1" size="xl" className="titleText">
-              Local Weather Snapshot
+              Local Weather Detector
             </Heading>
           </HStack>
 
